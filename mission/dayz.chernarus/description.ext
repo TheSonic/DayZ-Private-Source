@@ -9,6 +9,9 @@ onPauseScript = "\z\addons\dayz_code\compile\player_onPause.sqf";
 disabledAI = true;
 disableChannels[] = {0,2,6};
 enableItemsDropping = 0;
+aiKills = 1;
+diagRadio = 1;
+diagHit = 1;
 
 class Header
 {
@@ -16,10 +19,6 @@ class Header
 	minPlayers = 1;
 	maxPlayers = 100;
 };
-
-aiKills = 1;
-diagRadio = 1;
-diagHit = 1;
 
 #include "gcam\gcam_component.hpp"
 
@@ -106,7 +105,7 @@ class DayZ_loadingScreen
 	{
 		class Title1 : RscLoadingText
 		{
-			text = "$STR_LOADING"; // "Loading" text in the middle of the screen
+			text = "$STR_LOADING";
 		};
 		class CA_Progress : RscProgress
 		{
@@ -119,7 +118,7 @@ class DayZ_loadingScreen
 		{
 			idc = 103;
 		};
-		class Name2: RscText // Top-left text
+		class Name2: RscText
 		{
 			idc = 101;
 			x = 0.05;
