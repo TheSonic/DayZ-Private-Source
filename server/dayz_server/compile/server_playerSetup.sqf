@@ -7,8 +7,8 @@ _characterID 	= _this select 0;
 _playerObj 		= _this select 1;
 _playerID 		= getPlayerUID _playerObj;
 
-if (isNull _playerObj) exitWith {
-	diag_log ("PLAYER: SETUP INIT FAILED: Player object null: " + str(_playerObj));
+if (isNull _playerObj or !isPlayer _playerObj) exitWith {
+	diag_log ("PLAYER: SETUP FAILED: Player Object Null");
 };
 
 if (_playerID == "") then {
@@ -16,15 +16,12 @@ if (_playerID == "") then {
 };
 
 if (_playerID == "") exitWith {
-	diag_log ("PLAYER: SETUP INIT FAILED: No player ID: " + str(_playerObj));
+	diag_log ("PLAYER: SETUP FAILED: No Player ID");
 };
 
 private ["_dummy"];
 _dummy = getPlayerUID _playerObj;
-if ( _playerID != _dummy ) then { 
-	diag_log format ["DEBUG: Player ID %1 miscompare with UID", _playerID]; 
-	_playerID = _dummy;
-};
+if ( _playerID != _dummy ) then { _playerID = _dummy; };
 
 // Variables
 _worldspace 	= [];
@@ -36,22 +33,14 @@ _doLoop = 0;
 while {_doLoop < 5} do {
 	_key = format["CHILD:102:%1:", _characterID];
 	_primary = _key call server_hiveReadWrite;
-	if (count _primary > 0) then {
-		if ((_primary select 0) != "ERROR") then { _doLoop = 9; };
-	};
+	if (count _primary > 0) then { if ((_primary select 0) != "ERROR") then { _doLoop = 9; }; };
 	_doLoop = _doLoop + 1;
 };
 
-if (isNull _playerObj or !isPlayer _playerObj) exitWith {
-	diag_log ("PLAYER: SETUP RESULT: Player object null: " + str(_playerObj));
+if (HitMsgs || KillMsgs) then {
+	_playerObj addMPEventHandler ["MPHit", { _this spawn server_playerHit; }];
+	diag_log ("PLAYER: SETUP: Hit Event added");
 };
-
-if (KillMsgs) then {
-	diag_log ("PLAYER: Adding hit event for " + str(_playerObj));
-	_playerObj addMPEventHandler ["MPHit", { _this spawn server_playetHit; }];
-};
-
-diag_log ("PLAYER: SETUP RESULT: Successful with " + str(_primary));
 
 _medical 		= _primary select 1;
 _stats 			= _primary select 2;
@@ -59,8 +48,6 @@ _state 			= _primary select 3;
 _worldspace 	= _primary select 4;
 _humanity 		= _primary select 5;
 _randomSpot 	= false;
-
-// Get correct world values
 _distanceValue 	= 2000;
 _isIsland 		= false;
 _coastSpawn 	= 0;
@@ -81,7 +68,7 @@ if (count _worldspace > 0) then {
 	_randomSpot = true;
 };
 
-diag_log ("PLAYER: LOGIN RESULT: Location: " + str(_worldspace) + ", Random Spawn: " + str(_randomSpot));
+diag_log ("PLAYER: LOGIN RESULT: " + str(_worldspace) + " [" + str(_randomSpot) + "]");
 
 if (count _medical > 0) then {
 	_playerObj setVariable ["USEC_isDead",(_medical select 0), true];
@@ -106,7 +93,6 @@ if (count _medical > 0) then {
 	_playerObj setVariable ["hit_hands",(_fractures select 1), true];
 	
 	if (count _medical > 11) then {
-		// Add additional medical stats
 		_playerObj setVariable ["messing",(_medical select 11), true];
 	};
 	
@@ -126,12 +112,8 @@ if (count _stats > 0) then {
 	_playerObj setVariable ["humanKills", (_stats select 2), true];
 	_playerObj setVariable ["banditKills", (_stats select 3), true];
 	_playerObj addScore (_stats select 1);
-	
-	// Save Score
 	_score = score _playerObj;
 	_playerObj addScore ((_stats select 0) - _score);
-	
-	// Record for Server JIP checks
 	_playerObj setVariable ["zombieKills_CHK", (_stats select 0)];
 	_playerObj setVariable ["headShots_CHK", (_stats select 1)];
 	_playerObj setVariable ["humanKills_CHK", (_stats select 2)];
@@ -143,14 +125,10 @@ if (count _stats > 0) then {
 		_playerObj setVariable ["selectSex", true, true];
 	};
 } else {
-	//Save initial loadout
-	//register stats
 	_playerObj setVariable ["zombieKills", 0, true];
 	_playerObj setVariable ["humanKills", 0, true];
 	_playerObj setVariable ["banditKills", 0, true];
 	_playerObj setVariable ["headShots", 0, true];
-	
-	//record for Server JIP checks
 	_playerObj setVariable ["zombieKills_CHK", 0];
 	_playerObj setVariable ["humanKills_CHK", 0, true];
 	_playerObj setVariable ["banditKills_CHK", 0, true];
@@ -193,9 +171,9 @@ if (_randomSpot) then {
 	
 	if (!_isZero) then {
 		_worldspace = [0, _position];
-		diag_log ("PLAYER: SETUP RESULT: Marker: " + _mkr + ", Position: " + str(_position));
+		diag_log ("PLAYER: SETUP RESULT: " + str(_position) + " [" + _mkr + "]");
 	} else {
-		diag_log ("PLAYER: SETUP ERROR: Position is zero");
+		diag_log ("PLAYER: SETUP ERROR: Position Null");
 	};
 };
 
@@ -215,7 +193,7 @@ _clientID publicVariableClient "dayzPlayerLogin2";
 // Record time started
 _playerObj setVariable ["lastTime", time];
 
-diag_log ("PLAYER: LOGIN PUBLISHING: " + str(_playerObj) + ", Type: " + (typeOf _playerObj));
+diag_log ("PLAYER: LOGIN PUBLISHED: " + str(_playerObj));
 
 // Clean up
 dayzLogin 	= null;

@@ -10,8 +10,6 @@
 // Enable object publishing check
 #define CheckObject true
 
-// Enable gender selection screen
-#define GenderSelect true
 // Enable kill messages
 #define KillMsgs true
 #define KillMsgsIngame true
