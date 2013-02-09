@@ -38,7 +38,7 @@ while {_doLoop < 5} do {
 };
 
 if (HitMsgs || KillMsgs) then {
-	_playerObj addMPEventHandler ["MPHit", { _this spawn server_playerHit; }];
+	_playerObj addMPEventHandler ["MPHit", {_this spawn server_playerHit;}];
 	diag_log ("PLAYER: SETUP: Hit Event added");
 };
 
