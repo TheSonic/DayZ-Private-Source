@@ -165,7 +165,7 @@ _result 	= _key call server_hiveReadWrite;
 _status 	= _result select 0;
 _count 	= 0;
 
-if (_status == "ObjectStreamStart") then {
+if (_status == "CustomStreamStart") then {
 	_val = _result select 1;
 	for "_i" from 1 to _val do {
 		_result = _key call server_hiveReadWrite;
